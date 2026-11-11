@@ -77,9 +77,12 @@ def test_qrf_imputes_independent_shocks_without_shared_quantiles(
 ) -> None:
     """Targets with nil conditional dependence must not come out comonotonic.
 
-    With a shared stream the rank correlation of the imputed residuals is
-    about 0.7 on this design; with independent streams it is about zero,
-    with a standard error near 0.04 at 600 test rows.
+    The targets' shocks are independent given x, so the rank correlation of
+    the imputed residuals should be about zero: each pair's null standard error
+    is about 0.04 at 600 test rows, so a mean |correlation| of 0.15 sits more
+    than three standard errors out. With a shared stream (the shared-seed
+    mutant in conftest.py) the mean is 0.31 to 0.35 on microimpute 3.1.3 and
+    3.4.1 in three data draws; with per-variable streams it is 0.02 to 0.06.
     """
     rng = np.random.default_rng(data_seed)
     n_train, n_test = 1000, 600
@@ -96,4 +99,4 @@ def test_qrf_imputes_independent_shocks_without_shared_quantiles(
     )
     residual_ranks = imputed[targets].sub(test["x"], axis=0).rank()
     correlations = residual_ranks.corr().to_numpy()[np.triu_indices(3, k=1)]
-    assert np.abs(correlations).max() < 0.4, correlations
+    assert np.abs(correlations).mean() < 0.15, correlations

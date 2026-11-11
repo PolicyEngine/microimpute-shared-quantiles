@@ -5,3 +5,8 @@ mean share of rows with the same grid index as variable 'a': 1.000
 Spearman of imputed residuals across variables (truth ~0): 0.414 to 0.664
 second predict() identical to first: True
 === microimpute 3.4.1
+microimpute 3.4.1; per-variable model seeds: {'a': 42, 'b': 43, 'c': 44, 'd': 45}
+draw vectors identical across all variables: False
+mean share of rows with the same grid index as variable 'a': 0.013
+Spearman of imputed residuals across variables (truth ~0): -0.159 to 0.095
+second predict() identical to first: False

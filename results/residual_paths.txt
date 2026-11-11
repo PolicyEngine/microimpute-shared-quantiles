@@ -1,0 +1,5 @@
+microimpute 3.4.1; 5 replicates; truth ~0 (null SE ~0.04)
+separate QRFs, same variable position:      0.301 (SD 0.023)
+separate QRFs, different variable position: -0.023 (SD 0.013)
+ZeroInflatedImputer, all-positive targets:  0.325 (SD 0.006)
+ZeroInflatedImputer, base streams desynced: 0.015 (SD 0.044)
