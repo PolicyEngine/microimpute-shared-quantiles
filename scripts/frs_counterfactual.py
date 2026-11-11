@@ -22,6 +22,9 @@ Prints aggregates only.
 import argparse
 import json
 import logging
+import shutil
+import tempfile
+from contextlib import contextmanager
 from importlib.metadata import version
 from pathlib import Path
 
@@ -45,6 +48,19 @@ logging.getLogger("root").setLevel(logging.ERROR)
 BASES = [42 + 1000 * k for k in range(100)]
 
 
+@contextmanager
+def dataset_copy(path: str):
+    """Load a dataset from a temporary copy.
+
+    policyengine-uk's loader opens the file with pd.HDFStore's default append
+    mode, so loading the original would open it for writing.
+    """
+    with tempfile.TemporaryDirectory(prefix="frs_copy_") as folder:
+        copy = Path(folder) / Path(path).name
+        shutil.copy2(path, copy)
+        yield UKSingleYearDataset(file_path=str(copy))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--frs", default=str(STORAGE / "frs_2023_24.h5"))
@@ -60,11 +76,12 @@ def main() -> None:
     was = load_was_table()
     fitted = QRF().fit(was[predictors + variables], predictors, variables)
 
-    dataset = UKSingleYearDataset(file_path=args.frs)
-    sim = Microsimulation(dataset=dataset)
-    frame = sim.calculate_dataframe(predictors, map_to="household")
+    with dataset_copy(args.frs) as dataset:
+        sim = Microsimulation(dataset=dataset)
+        frame = sim.calculate_dataframe(predictors, map_to="household")
+        household = pd.DataFrame(dataset.household).reset_index(drop=True)
+        frs_year = int(dataset.time_period)
     frame["region"] = frame["region"].replace("NORTHERN_IRELAND", "WALES")
-    household = pd.DataFrame(dataset.household).reset_index(drop=True)
     weights = household["household_weight"].to_numpy(dtype=float)
     region = household["region"].to_numpy()
 
@@ -101,7 +118,7 @@ def main() -> None:
             "policyengine_uk": version("policyengine-uk"),
             "ukdata_commit": ukdata_commit(),
             "frs_file": Path(args.frs).name,
-            "frs_year": int(dataset.time_period),
+            "frs_year": frs_year,
             "n_frs_households": int(len(household)),
             "bases": BASES[: args.bases],
             "model_classes": {v: type(fitted.models[v]).__name__ for v in variables},
@@ -115,12 +132,13 @@ def main() -> None:
         },
     }
     if args.enhanced and Path(args.enhanced).exists():
-        enhanced = UKSingleYearDataset(file_path=args.enhanced)
-        table = pd.DataFrame(enhanced.household).reset_index(drop=True)
+        with dataset_copy(args.enhanced) as enhanced:
+            table = pd.DataFrame(enhanced.household).reset_index(drop=True)
+            enhanced_year = int(enhanced.time_period)
         present = [v for v in variables if v in table.columns]
         result["enhanced_frs"] = {
             "file": Path(args.enhanced).name,
-            "year": int(enhanced.time_period),
+            "year": enhanced_year,
             "n_households": int(len(table)),
             "weights": "calibrated household_weight",
             "metrics": wealth_metrics(

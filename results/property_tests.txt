@@ -1,1 +1,14 @@
+=== microimpute 3.1.3
+4 passed in 204.38s (0:03:24)
+=== microimpute 3.1.3 with MICROIMPUTE_MUTANT=shared-seed
+FAILED tests/test_seed_properties.py::test_qrf_per_variable_seeds_are_distinct_and_bounded
+FAILED tests/test_seed_properties.py::test_qrf_per_variable_streams_differ
+FAILED tests/test_seed_properties.py::test_qrf_imputes_independent_shocks_without_shared_quantiles
+3 failed, 1 passed in 332.00s (0:05:31)
 === microimpute 3.4.1
+4 passed in 32.18s
+=== microimpute 3.4.1 with MICROIMPUTE_MUTANT=shared-seed
+FAILED tests/test_seed_properties.py::test_qrf_per_variable_seeds_are_distinct_and_bounded
+FAILED tests/test_seed_properties.py::test_qrf_per_variable_streams_differ
+FAILED tests/test_seed_properties.py::test_qrf_imputes_independent_shocks_without_shared_quantiles
+3 failed, 1 passed in 325.90s (0:05:25)
