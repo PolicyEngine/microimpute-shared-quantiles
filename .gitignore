@@ -1,0 +1,6 @@
+__pycache__/
+.hypothesis/
+.pytest_cache/
+.venv/
+results/*.log
+results/run_licensed.done

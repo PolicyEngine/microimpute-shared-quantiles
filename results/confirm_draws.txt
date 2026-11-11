@@ -1,0 +1,7 @@
+=== microimpute 1.8.1
+microimpute 1.8.1; per-variable model seeds: {'a': 42, 'b': 42, 'c': 42, 'd': 42}
+draw vectors identical across all variables: True
+mean share of rows with the same grid index as variable 'a': 1.000
+Spearman of imputed residuals across variables (truth ~0): 0.414 to 0.664
+second predict() identical to first: True
+=== microimpute 3.4.1
